@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
 import { SWRConfig } from 'swr';
 import { api } from './utils/api';
@@ -6,11 +7,12 @@ import { RecoilRoot } from 'recoil';
 
 import "./styles.scss"
 
-import { Home } from './pages';
+import { allRoutes, PrivateRoutes } from './routes/allRoutes';
+import Authmiddleware from "./routes/middleware/Authmiddleware";
+
 
 const App: React.FC = () => {
 	const swrConfig = {
-		// useSWR에 url만 적어도 axios의 response.data 값이 return
 		fetcher: (url: string, params: object) => {
 			api
 				.get(url, { params })
@@ -18,13 +20,42 @@ const App: React.FC = () => {
 		}
 	};
 
+	const NonAuthRoutes = ({
+		path,
+		component: Component,
+	}) => (
+		<Route
+			path={path}
+			render={props => {
+				return (
+	
+					<Component {...props} />
+	
+				);
+			}}
+		/>
+	);
+
 	return (
 		<RecoilRoot>
 			<SWRConfig value={swrConfig}>
 				<BrowserRouter>
 					<Switch>
-						<Route path="/" exact render={props => <Home {...props} />} />
-						<Redirect to="/" />
+						{allRoutes.map((route, idx) => (
+							<NonAuthRoutes
+								path={route.path}
+								component={route.component}
+								key={idx}
+							/>
+						))}
+
+						{PrivateRoutes.map((route, idx) => (
+							<Authmiddleware
+								path={route.path}
+								component={route.component}
+								key={idx}
+							/>
+						))}
 					</Switch>
 				</BrowserRouter>
 			</SWRConfig>

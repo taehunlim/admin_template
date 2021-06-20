@@ -52,6 +52,7 @@ const LoginForm: React.FC = () => {
 
 			<Button
 				type="submit"
+				onClick={() =>{ localStorage.setItem('authUser', true)}}
 			>
 				로그인
 			</Button>
